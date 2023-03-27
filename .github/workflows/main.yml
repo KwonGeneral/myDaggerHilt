@@ -22,6 +22,7 @@ jobs:
             ${{ runner.os }}-gradle-
       - name: Get app version info
         run: |
+          cd ../..
           echo "VERSION_NAME=$(grep versionName ./app/build.gradle | awk '{print $2}' | sed \"s/\'//g\")" >> $GITHUB_ENV
           echo "VERSION_CODE=$(grep versionCode ./app/build.gradle | awk '{print $2}' | sed \"s/\\r//\")" >> $GITHUB_ENV
           echo "PACKAGE_NAME=$(grep applicationId ./app/build.gradle | awk '{print $2}' | sed \"s/\'//g\")" >> $GITHUB_ENV
@@ -36,10 +37,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         with:
-          tag_name: v${{ env.VERSION_NAME }}
-          release_name: Release v${{ env.VERSION_NAME }}
+          tag_name: ${{ env.VERSION_NAME }}
+          release_name: Release ${{ env.VERSION_NAME }}
           body: |
-            Release version v${{ env.VERSION_NAME }}
+            Release version ${{ env.VERSION_NAME }}
           draft: false
           prerelease: false
       - name: Upload APK
@@ -50,5 +51,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: app/build/outputs/apk/debug/app-debug.apk
-          asset_name: ${{ env.PACKAGE_NAME }}_${{ env.VERSION_CODE }}_${{ env.VERSION_NAME }}.apk
+          asset_name: ${{ env.PACKAGE_NAME }}_${{ env.VERSION_NAME }}.apk
           asset_content_type: application/vnd.android.package-archive
