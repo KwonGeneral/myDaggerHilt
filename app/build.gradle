@@ -13,8 +13,8 @@ android {
         applicationId "com.example.mydaggerhilt"
         minSdk 29
         targetSdk 33
-        versionCode rootProject.ext.version_code.toInteger()
-        versionName rootProject.ext.version_name
+        versionCode 100
+        versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
