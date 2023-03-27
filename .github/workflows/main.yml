@@ -20,13 +20,17 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-      - name: Get app version info
+      - name: Get version
+        id: get_version
         run: |
-          cd ../..
-          echo "VERSION_NAME=$(grep versionName ./app/build.gradle | awk '{print $2}' | sed \"s/\'//g\")" >> $GITHUB_STATE
-          echo "VERSION_CODE=$(grep versionCode ./app/build.gradle | awk '{print $2}' | sed \"s/\\r//\")" >> $GITHUB_STATE
-          echo "PACKAGE_NAME=$(grep applicationId ./app/build.gradle | awk '{print $2}' | sed \"s/\'//g\")" >> $GITHUB_STATE
-          echo "TAG_NAME=v${{ env.VERSION_NAME }}" >> $GITHUB_STATE
+          echo "::set-output name=code::$(grep versionCode buildSrc/src/main/java/Dependencies.kt | awk '{print $5}')"
+          echo "::set-output name=name::$(grep versionName buildSrc/src/main/java/Dependencies.kt | awk '{print $5}' | tr '"' ' ' | tr -d " ")"
+      - name: Get tag name
+        id: get_tag
+        run: echo "::set-output name=name::v${{ steps.get_version.outputs.name }}"
+      - name: Get release name
+        id: get_release
+        run: echo "::set-output name=name::v${{ steps.get_version.outputs.name }}"
       - name: Build with Gradle
         run: |
           chmod +x gradlew
@@ -38,14 +42,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.TAG_NAME }}
-          release_name: Release v${{ env.VERSION_NAME }}
+          tag_name: ${{ steps.get_tag.outputs.name }}
+          release_name: ${{ steps.get_release.outputs.name }}
           body: |
-            Release version v${{ env.VERSION_NAME }}
+            Release version ${{ env.VERSION_NAME }}
           draft: false
           prerelease: false
       - name: Upload APK
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: app/build/outputs/apk/debug/app-debug.apk
+          asset_name: mydaggerhilt_${{ steps.get_version.outputs.code }}_${{ steps.get_version.outputs.name }}.apk
+          asset_content_type: application/vnd.android.package-archive
