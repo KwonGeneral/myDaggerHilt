@@ -35,11 +35,15 @@ android {
 }
 
 task printVersionName {
-    print android.defaultConfig.versionName
+    doLast {
+        print android.defaultConfig.versionName
+    }
 }
 
 task printVersionCode {
-    print android.defaultConfig.versionCode
+    doLast {
+        print android.defaultConfig.versionCode
+    }
 }
 
 kapt {
