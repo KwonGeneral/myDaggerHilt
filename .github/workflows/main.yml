@@ -22,11 +22,12 @@ jobs:
             ${{ runner.os }}-gradle-
       - name: Get app version info
         run: |
-          cd ../..
-          echo "VERSION_NAME=$(grep versionName ./app/build.gradle | awk '{print $2}' | sed \"s/\'//g\")" >> $GITHUB_ENV
-          echo "VERSION_CODE=$(grep versionCode ./app/build.gradle | awk '{print $2}' | sed \"s/\\r//\")" >> $GITHUB_ENV
-          echo "PACKAGE_NAME=$(grep applicationId ./app/build.gradle | awk '{print $2}' | sed \"s/\'//g\")" >> $GITHUB_ENV
+          cd ..
+          echo "VERSION_NAME=$(grep "VERSION_NAME=" gradle.properties | cut -d'=' -f2)" >> $GITHUB_ENV
+          echo "VERSION_CODE=$(grep "VERSION_CODE=" gradle.properties | cut -d'=' -f2)" >> $GITHUB_ENV
+          echo "PACKAGE_NAME=$(grep "applicationId" app/build.gradle | awk '{print $2}' | sed \"s/\'//g\")" >> $GITHUB_ENV
           echo "TAG_NAME=v${{ env.VERSION_NAME }}" >> $GITHUB_ENV
+          echo "RELEASE_NAME=v${{ env.VERSION_NAME }}" >> $GITHUB_ENV
       - name: Build with Gradle
         run: |
           chmod +x gradlew
@@ -39,7 +40,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.TAG_NAME }}
-          release_name: Release v${{ env.VERSION_NAME }}
+          release_name: Release v${{ env.RELEASE_NAME }}
           body: |
             Release version v${{ env.VERSION_NAME }}
           draft: false
