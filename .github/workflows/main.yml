@@ -23,8 +23,8 @@ jobs:
       - name: Get app version info
         run: |
           chmod +x gradlew
-          VERSION_NAME_OUTPUT=$(./gradlew -q printVersionName)
-          VERSION_CODE_OUTPUT=$(./gradlew -q printVersionCode)
+          VERSION_NAME=$(./gradlew -q printVersionName | tr -d '\n')
+          VERSION_CODE=$(./gradlew -q printVersionCode | tr -d '\n')
           echo "Version Name Output: $VERSION_NAME_OUTPUT"
           echo "Version Code Output: $VERSION_CODE_OUTPUT"
           echo "VERSION_NAME=$VERSION_NAME_OUTPUT" >> $GITHUB_ENV
