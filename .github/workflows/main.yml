@@ -23,9 +23,12 @@ jobs:
       - name: Get app version info
         run: |
           chmod +x gradlew
-          echo "VERSION_NAME=$(./gradlew -q printVersionName)" >> $GITHUB_ENV
-          echo "VERSION_CODE=$(./gradlew -q printVersionCode)" >> $GITHUB_ENV
-
+          VERSION_NAME_OUTPUT=$(./gradlew -q printVersionName)
+          VERSION_CODE_OUTPUT=$(./gradlew -q printVersionCode)
+          echo "Version Name Output: $VERSION_NAME_OUTPUT"
+          echo "Version Code Output: $VERSION_CODE_OUTPUT"
+          echo "VERSION_NAME=$VERSION_NAME_OUTPUT" >> $GITHUB_ENV
+          echo "VERSION_CODE=$VERSION_CODE_OUTPUT" >> $GITHUB_ENV
       - name: Build with Gradle
         run: |
           chmod +x gradlew
