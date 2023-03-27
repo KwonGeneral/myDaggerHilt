@@ -20,14 +20,17 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-      - name: Get app version info
+      - name: Get version
+        id: get_version
         run: |
-          cd ..\..
-          echo "VERSION_NAME=$(grep "VERSION_NAME=" gradle.properties | cut -d'=' -f2)" >> $GITHUB_ENV
-          echo "VERSION_CODE=$(grep "VERSION_CODE=" gradle.properties | cut -d'=' -f2)" >> $GITHUB_ENV
-          echo "PACKAGE_NAME=$(grep "applicationId" app/build.gradle | awk '{print $2}' | sed \"s/\'//g\")" >> $GITHUB_ENV
-          echo "TAG_NAME=v${{ env.VERSION_NAME }}" >> $GITHUB_ENV
-          echo "RELEASE_NAME=v${{ env.VERSION_NAME }}" >> $GITHUB_ENV
+          echo "::set-output name=code::$(grep versionCode buildSrc/src/main/java/Dependencies.kt | awk '{print $5}')"
+          echo "::set-output name=name::$(grep versionName buildSrc/src/main/java/Dependencies.kt | awk '{print $5}' | tr '"' ' ' | tr -d " ")"
+      - name: Get tag name
+        id: get_tag
+        run: echo "::set-output name=name::v${{ steps.get_version.outputs.name }}"
+      - name: Get release name
+        id: get_release
+        run: echo "::set-output name=name::v${{ steps.get_version.outputs.name }}"
       - name: Build with Gradle
         run: |
           chmod +x gradlew
@@ -39,8 +42,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.TAG_NAME }}
-          release_name: Release v${{ env.RELEASE_NAME }}
+          tag_name: ${{ steps.get_tag.outputs.name }}
+          release_name: ${{ steps.get_release.outputs.name }}
           body: |
             Release version ${{ env.VERSION_NAME }}
           draft: false
@@ -53,5 +56,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: app/build/outputs/apk/debug/app-debug.apk
-          asset_name: ${{ env.PACKAGE_NAME }}_${{ env.VERSION_CODE }}_${{ env.VERSION_NAME }}.apk
+          asset_name: mydaggerhilt_${{ steps.get_version.outputs.code }}_${{ steps.get_version.outputs.name }}.apk
           asset_content_type: application/vnd.android.package-archive
