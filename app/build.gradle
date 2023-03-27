@@ -34,6 +34,14 @@ android {
     }
 }
 
+task printVersionName {
+    println android.defaultConfig.versionName
+}
+
+task printVersionCode {
+    println android.defaultConfig.versionCode
+}
+
 kapt {
     correctErrorTypes true
 }

@@ -22,9 +22,8 @@ jobs:
             ${{ runner.os }}-gradle-
       - name: Get app version info
         run: |
-          echo "VERSION_NAME=$(grep versionName ~/.app/build.gradle | awk '{print $2}' | sed \"s/\'//g\")" >> $GITHUB_ENV
-          echo "VERSION_CODE=$(grep versionCode ~/.app/build.gradle | awk '{print $2}' | sed \"s/\\r//\")" >> $GITHUB_ENV
-          echo "PACKAGE_NAME=$(grep applicationId ~/.app/build.gradle | awk '{print $2}' | sed \"s/\'//g\")" >> $GITHUB_ENV
+          echo "VERSION_NAME=$(grep printVersionName ~/.app/build.gradle | awk '{print $2}' | sed \"s/\'//g\")" >> $GITHUB_ENV
+          echo "VERSION_CODE=$(grep printVersionCode ~/.app/build.gradle | awk '{print $2}' | sed \"s/\\r//\")" >> $GITHUB_ENV
           echo "TAG_NAME=v${{ env.VERSION_CODE }}" >> $GITHUB_ENV
       - name: Build with Gradle
         run: |
