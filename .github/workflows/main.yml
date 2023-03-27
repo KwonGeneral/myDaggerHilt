@@ -22,7 +22,7 @@ jobs:
             ${{ runner.os }}-gradle-
       - name: Get app version info
         run: |
-          cd ..
+          cd ..\..
           echo "VERSION_NAME=$(grep "VERSION_NAME=" gradle.properties | cut -d'=' -f2)" >> $GITHUB_ENV
           echo "VERSION_CODE=$(grep "VERSION_CODE=" gradle.properties | cut -d'=' -f2)" >> $GITHUB_ENV
           echo "PACKAGE_NAME=$(grep "applicationId" app/build.gradle | awk '{print $2}' | sed \"s/\'//g\")" >> $GITHUB_ENV
@@ -42,7 +42,7 @@ jobs:
           tag_name: ${{ env.TAG_NAME }}
           release_name: Release v${{ env.RELEASE_NAME }}
           body: |
-            Release version v${{ env.VERSION_NAME }}
+            Release version ${{ env.VERSION_NAME }}
           draft: false
           prerelease: false
       - name: Upload APK
