@@ -1,27 +1,32 @@
 package com.example.mydaggerhilt
 
+import android.os.Build.VERSION_CODES.O
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
+import com.example.mydaggerhilt.data.repository.TestRepository
+import com.example.mydaggerhilt.domain.usecase.GetTestUsecase
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.components.ActivityComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    @Inject lateinit var analytics: AnalyticsAdapter
-
+    var getTestUsecase = GetTestUsecase(TestRepository())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        analytics.test()
+        CoroutineScope(Dispatchers.IO).launch {
+            getTestUsecase()
+        }
     }
 }
 
