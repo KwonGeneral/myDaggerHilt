@@ -1,4 +1,4 @@
-name: Build and Release APK
+name: Build and Release Signed APK
 on:
   push:
     branches:
@@ -32,11 +32,21 @@ jobs:
           echo "APPLICATION_ID=$APPLICATION_ID_OUTPUT" >> $GITHUB_ENV
           echo "VERSION_NAME=$VERSION_NAME_OUTPUT" >> $GITHUB_ENV
           echo "VERSION_CODE=$VERSION_CODE_OUTPUT" >> $GITHUB_ENV
-      - name: Build with Gradle
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+      - name: Build signed APK
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug
-          ls app/build/outputs/apk/debug/
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > release.keystore
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=release.keystore \
+            -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
+            -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
+            -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
+          ls app/build/outputs/apk/release/
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -61,6 +71,6 @@ jobs:
           VERSION_NAME: ${{ env.VERSION_NAME }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: app/build/outputs/apk/debug/app-debug.apk
+          asset_path: app/build/outputs/apk/release/app-release.apk
           asset_name: ${{ env.APPLICATION_ID }}_${{ env.VERSION_CODE }}_${{ env.VERSION_NAME }}.apk
           asset_content_type: application/vnd.android.package-archive
