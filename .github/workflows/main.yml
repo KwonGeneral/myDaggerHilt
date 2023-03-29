@@ -40,7 +40,7 @@ jobs:
       - name: Build signed APK
         run: |
           chmod +x gradlew
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > release.keystore
+          echo "${{ secrets.MY_KEYSTORE_BASE64 }}" | base64 --decode > release.keystore
           ./gradlew assembleRelease \
             -Pandroid.injected.signing.store.file=release.keystore \
             -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
